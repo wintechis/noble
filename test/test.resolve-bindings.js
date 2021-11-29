@@ -2,13 +2,21 @@ const should = require('should');
 const proxyquire = require('proxyquire').noCallThru();
 const { EventEmitter } = require('events');
 
-let choosenPlatform;
-const platform = () => choosenPlatform;
+let chosenPlatform;
+let chosenRelease;
+const platform = () => chosenPlatform;
+const release = () => chosenRelease;
 
-const NobleMac = function () {};
+class NobleMac {}
+
+class NobleWinrt {}
 
 const NobleMacImport = proxyquire('../lib/mac/bindings', {
-  './native/binding': { NobleMac }
+  'bindings': () => ({ NobleMac })
+});
+
+const NobleWinrtImport = proxyquire('../lib/win/bindings', {
+  'bindings': () => ({ NobleWinrt })
 });
 
 const WebSocket = require('../lib/websocket/bindings');
@@ -22,7 +30,8 @@ const resolver = proxyquire('../lib/resolve-bindings', {
   './distributed/bindings': NobleBindings,
   './hci-socket/bindings': HciNobleBindings,
   './mac/bindings': NobleMacImport,
-  os: { platform }
+  './win/bindings': NobleWinrtImport,
+  os: { platform, release }
 });
 
 describe('Resolve bindings', () => {
@@ -53,35 +62,36 @@ describe('Resolve bindings', () => {
   });
 
   it('mac', () => {
-    choosenPlatform = 'darwin';
+    chosenPlatform = 'darwin';
 
     const bindings = resolver({});
     should(bindings).instanceof(NobleMac);
   });
 
   it('linux', () => {
-    choosenPlatform = 'linux';
+    chosenPlatform = 'linux';
 
     const bindings = resolver({});
     should(bindings).instanceof(HciNobleBindings);
   });
 
   it('freebsd', () => {
-    choosenPlatform = 'freebsd';
+    chosenPlatform = 'freebsd';
 
     const bindings = resolver({});
     should(bindings).instanceof(HciNobleBindings);
   });
 
   it('win32', () => {
-    choosenPlatform = 'win32';
+    chosenPlatform = 'win32';
+    chosenRelease = '10.0.22000';
 
     const bindings = resolver({});
-    should(bindings).instanceof(HciNobleBindings);
+    should(bindings).instanceof(NobleWinrt);
   });
 
   it('unknwon', () => {
-    choosenPlatform = 'unknwon';
+    chosenPlatform = 'unknwon';
 
     try {
       resolver({});

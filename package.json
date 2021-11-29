@@ -67,6 +67,7 @@
     "install": "prebuild-install || node-gyp rebuild",
     "lint": "eslint \"**/*.js\"",
     "lint-fix": "eslint \"**/*.js\" --fix",
+    "pretest": "npm run build",
     "test": "mocha -R spec test/*.js"
   },
   "browser": {
