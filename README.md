@@ -23,7 +23,7 @@ __Note:__ macOS / Mac OS X, Linux, FreeBSD and Windows are currently the only su
 ```javascript
 // Read the battery level of the first found peripheral exposing the Battery Level characteristic
 
-const noble = require('@abandonware/noble');
+const noble = require('@abandonware/noble')({extended: false});
 
 noble.on('stateChange', async (state) => {
   if (state === 'poweredOn') {
@@ -125,6 +125,7 @@ npm install --global --production windows-build-tools
 ```
 
 [node-bluetooth-hci-socket prerequisites](#windows)
+   * Compatible Bluetooth 5.0 Zephyr HCI-USB adapter (you need to add BLUETOOTH_HCI_SOCKET_USB_VID and BLUETOOTH_HCI_SOCKET_USB_PID to the process env)
    * Compatible Bluetooth 4.0 USB adapter
    * [WinUSB](https://msdn.microsoft.com/en-ca/library/windows/hardware/ff540196(v=vs.85).aspx) driver setup for Bluetooth 4.0 USB adapter, using [Zadig tool](http://zadig.akeo.ie/)
 
@@ -140,8 +141,14 @@ Make sur your container runs with `--network=host` options and all specific envi
 npm install @abandonware/noble
 ```
 
+In Windows OS add your custom hci-usb dongle to the process env
+```sh
+set BLUETOOTH_HCI_SOCKET_USB_VID=xxx
+set BLUETOOTH_HCI_SOCKET_USB_PID=xxx
+```
+
 ```javascript
-const noble = require('@abandonware/noble');
+const noble = require('@abandonware/noble')({extended: false});
 ```
 
 ## API docs
@@ -652,7 +659,8 @@ const Noble = require('@abandonware/noble/lib/noble');
 
 const params = {
   deviceId: 0,
-  userChannel: true
+  userChannel: true,
+  extended: false
 };
 
 const noble = new Noble(new HCIBindings(params));
