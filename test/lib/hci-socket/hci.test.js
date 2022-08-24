@@ -426,14 +426,14 @@ describe('hci-socket hci', () => {
     assert.calledOnceWithExactly(hci._socket.write, Buffer.from([0x01, 0x05, 0x14, 0x02, 0x34, 0x12]));
   });
 
-  it('should writeAclDataPkt - push in aclQueue and flushAcl', () => {
+  it('should writeAclDataPkt - push in aclQueue and flushAcl', async () => {
     hci.flushAcl = sinon.spy();
     hci._aclBuffers = [1, 2, 3, 4, 5, 6, 7, 8];
 
     const handle = 0x1234;
     const cid = 345;
     const data = Buffer.from([5, 6, 7, 8, 9, 10, 11]);
-    hci.writeAclDataPkt(handle, cid, data);
+    await hci.writeAclDataPkt(handle, cid, data);
 
     assert.calledOnceWithExactly(hci.flushAcl);
 
@@ -504,7 +504,7 @@ describe('hci-socket hci', () => {
       should(hci._aclQueue).deepEqual(queue);
     });
 
-    it('should write flush', () => {
+    it('should write flush', async () => {
       const queue = [
         {
           handle: 4660,
@@ -524,7 +524,7 @@ describe('hci-socket hci', () => {
       hci._aclConnections.set(4661, { pending: 2 });
       hci._aclBuffers = { num: 12 };
 
-      hci.flushAcl();
+      await hci.flushAcl();
 
       assert.callCount(hci._socket.write, 3);
       assert.calledWithExactly(hci._socket.write, Buffer.from([0x02, 0x34, 0x12, 0x08, 0x00, 0x07, 0x00, 0x59, 0x01, 0x05, 0x06, 0x07, 0x08]));
